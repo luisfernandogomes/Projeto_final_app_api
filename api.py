@@ -56,8 +56,10 @@ def consultar_livros():
 
 
 
-        return jsonify({'livros no catalogo da biblioteca': result},
-                       {'livros disponiveis para emprestimos': result_disponiveis})
+        return jsonify({'livrosnocatalogodabiblioteca': result,
+                       'livrosdisponiveisparaemprestimos': result_disponiveis})
+
+
     except IntegrityError as e:
         return jsonify({'error': str(e)})
 
@@ -145,15 +147,18 @@ def cadastrar_emprestimo():
         data_emprestimo = date.today()
         data_de_devolucao = data_emprestimo + relativedelta(weeks=5)
 
-        isbn = request.form.get('isbn')
-        id_usuario = request.form.get('id_usuario')
+        dados = request.get_json()
+        isbn = dados['isbn']
+        id_usuario = dados['id_usuario']
+
+
+
         id_usuario = int(id_usuario)
         if not isbn or not id_usuario:
             return jsonify({'error': 'Campos ISBN e id_usuario são obrigatórios'}), 400
         usuario = select(Emprestimos)
         usuario_com_emprestimos = db_session.execute(usuario.filter_by(id_usuario=id_usuario)).scalar()
-        if usuario_com_emprestimos:
-            return jsonify({'error': 'Este usuario ja contem livros emprestados em seu nome'})
+
         isbn = int(isbn)
 
 
@@ -319,7 +324,7 @@ def devolver():
         if not livro_existente:
             return jsonify({'error': 'livro não existente'})
         if livro_existente.status:
-            return jsonify({'error':'livro já está devolvido'})
+            return jsonify({'error':'livro já está devolvido'}),
         livro_existente.status = True
         livro_existente.save()
         return jsonify({'mensagem': 'Livro devolvido com sucesso',
