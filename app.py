@@ -15,6 +15,7 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.DARK
     page.window.width = 375
     page.window.height = 667
+
     # def lista_em_detalhes(e):
     #     lv_Descricao.controls.clear()
     #     for livro in lista:
@@ -111,10 +112,15 @@ def main(page: ft.Page):
             View(
                 "/",
                 [
-                    AppBar(title=Text("Home"), bgcolor='#5a1f13',center_title=True,color='#ffe6d9'),
-                    ft.Text(value="Bem vindo há Biblioteca Gomes ",weight=ft.FontWeight.BOLD,style=ft.TextStyle(size=25,color='#5a1f13')),
+                    AppBar(title=Text("Home"), bgcolor='#5a1f13',actions=[livro,perfil],leading=logo,center_title=True,color='#ffe6d9'),
+                    menubar,
+                    logo,
+
+                    ft.Text(value="Bem vindo há Biblioteca Gomes ",weight=ft.FontWeight.BOLD,style=ft.TextStyle(size=21,color='#5a1f13')),
                     ft.Text(value="Biblioteca Gomes permite que você realize empréstimos com varias funcionalidades",size=20,weight=ft.FontWeight.BOLD,style=ft.TextStyle(size=15,color='#914e3e')),
                     ft.Text(value="Sistema permite que você encontre diversos livros sendo possível filtrar por categorias ou autor",size=20,weight=ft.FontWeight.BOLD,style=ft.TextStyle(size=15,color='#914e3e')),
+
+
                     # ft.Button(
                     #     text="Salvar",
                     #     on_click=lambda _: salvar_livro(e),
@@ -123,38 +129,104 @@ def main(page: ft.Page):
                     #     text="Exibir",
                     #     on_click=lambda _: page.go('/livros'),
                     # )
-                ],bgcolor='#d2b48c',horizontal_alignment=ft.CrossAxisAlignment.CENTER,padding=50#vertical_alignment=ft.MainAxisAlignment.CENTER
+                ],bgcolor='#d2b48c',horizontal_alignment=ft.CrossAxisAlignment.CENTER,padding=10 #vertical_alignment=ft.MainAxisAlignment.CENTER
             )
         )
-        if page.route == "/livros" or page.route == "/detalhes":
+
+
+        if page.route == "/biblioteca" or page.route == "/detalhes":
             # exibir_banco_em_detalhes(e)
 
             page.views.append(
                 View(
-                    "/Livros",
+                    "/biblioteca",
                     [
-                        AppBar(title=Text("Segunda tela"), bgcolor=Colors.SECONDARY_CONTAINER),
+                        AppBar(title=Text("Catalogo de livros"), bgcolor='#5a1f13',actions=[perfil],leading=logo,center_title=True,color='#ffe6d9'),
                         lv_Descricao,
 
 
                         # ft.FloatingActionButton('+', on_click=detalhes(e))
-                    ],
+                    ],bgcolor='#d2b48c'
                 )
             )
         page.update()
-        if page.route == "/detalhes":
+
+
+        if page.route == "/detalhes" or page.route == "/editar_livro":
             page.views.append(
                 View(
                     "/detalhes",
                     [
-                        AppBar(title=Text('Detalhes do livro'), bgcolor=Colors.SECONDARY_CONTAINER),
+                        AppBar(title=Text("Detalhes"), bgcolor='#5a1f13',actions=[perfil],leading=logo,center_title=True,color='#ffe6d9'),
                         txt_titulo,
                         txt_autor,
                         txt_descricao,
                         txt_categoria,
                         txt_ISBN,
 
-                    ]
+                    ],bgcolor='#d2b48c'
+                )
+            )
+        page.update()
+
+
+        if page.route == "/editar_livro" or page.route == "/cadastrar_usuario":
+            page.views.append(
+                View(
+                    "/editar_livro",
+                    [
+                        AppBar(title=Text("Editar Usuario"), bgcolor='#5a1f13',actions=[perfil],leading=logo,center_title=True,color='#ffe6d9'),
+                    ],bgcolor='#d2b48c'
+                )
+            )
+        page.update()
+
+
+
+        if page.route == "/cadastrar_usuario" or page.route == "/cadastrar_emprestimo":
+            page.views.append(
+                View(
+                    "/cadastrar_usuario",
+                    [
+                        AppBar(title=Text("Cadastrar Usuario"), bgcolor='#5a1f13',leading=logo,center_title=True,color='#ffe6d9'),
+                    ],bgcolor='#d2b48c'
+                )
+            )
+        page.update()
+
+
+        if page.route == "/cadastrar_emprestimo" or page.route == "/cadastrar_livro":
+            page.views.append(
+                View(
+                    "/cadastrar_emprestimo",
+                    [
+                        AppBar(title=Text("Cadastrar Emprestimo"), bgcolor='#5a1f13', actions=[perfil], leading=logo, center_title=True,
+                               color='#ffe6d9'),
+                    ],bgcolor='#d2b48c'
+                )
+            )
+        page.update()
+
+
+        if page.route == "/cadastrar_livro" or page.route == "/perfil":
+            page.views.append(
+                View(
+                    "/cadastrar_livro",
+                    [
+                        AppBar(title=Text("Cadastrar Livro"), bgcolor='#5a1f13',actions=[perfil],leading=logo,center_title=True,color='#ffe6d9'),
+                    ],bgcolor='#d2b48c'
+                )
+            )
+        page.update()
+
+
+        if page.route == "/perfil":
+            page.views.append(
+                View(
+                    "/perfil",
+                    [
+                        AppBar(title=Text("Perfil"), bgcolor='#5a1f13',leading=logo,center_title=True,color='#ffe6d9'),
+                    ],bgcolor='#d2b48c'
                 )
             )
         page.update()
@@ -167,6 +239,115 @@ def main(page: ft.Page):
 
 
     # Componentes////////////////////////////////////////////////////////////////////////////////////////////////
+
+    appbar_text_ref = ft.Ref[ft.Text]()
+
+    def handle_menu_item_click(e):
+        print(f"{e.control.content.value}.on_click")
+        page.open(
+            ft.SnackBar(content=ft.Text(f"{e.control.content.value} was clicked!"))
+        )
+        appbar_text_ref.current.value = e.control.content.value
+        page.update()
+
+    def handle_submenu_open(e):
+        print(f"{e.control.content.value}.on_open")
+
+    def handle_submenu_close(e):
+        print(f"{e.control.content.value}.on_close")
+
+    def handle_submenu_hover(e):
+        print(f"{e.control.content.value}.on_hover")
+
+    page.appbar = ft.AppBar(
+        title=ft.Text("Menus", ref=appbar_text_ref),
+        center_title=True,
+        bgcolor=ft.Colors.BLUE,
+    )
+
+    menubar = ft.MenuBar(
+        expand=True,
+        style=ft.MenuStyle(
+            alignment=ft.alignment.top_right,
+            bgcolor="#ffe5dd",
+            mouse_cursor={
+                ft.ControlState.HOVERED: ft.MouseCursor.WAIT,
+                ft.ControlState.DEFAULT: ft.MouseCursor.ZOOM_OUT,
+            },
+        ),
+        controls=[
+            ft.SubmenuButton(
+                content=ft.Text("File"),
+                width=250,
+                on_open=handle_submenu_open,
+                on_close=handle_submenu_close,
+                on_hover=handle_submenu_hover,
+                controls=[
+                    ft.MenuItemButton(
+                        content=ft.Text("About"),
+                        leading=ft.Icon(ft.Icons.INFO),
+                        style=ft.ButtonStyle(
+                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
+                        ),
+                        on_click=handle_menu_item_click,
+                    ),
+                    ft.MenuItemButton(
+                        content=ft.Text("Save"),
+                        leading=ft.Icon(ft.Icons.SAVE),
+                        style=ft.ButtonStyle(
+                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
+                        ),
+                        on_click=handle_menu_item_click,
+                    ),
+                    ft.MenuItemButton(
+                        content=ft.Text("Quit"),
+                        leading=ft.Icon(ft.Icons.CLOSE),
+                        style=ft.ButtonStyle(
+                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
+                        ),
+                        on_click=handle_menu_item_click,
+                    ),
+                ],
+            ),
+            ft.SubmenuButton(
+                content=ft.Text("View"),
+                on_open=handle_submenu_open,
+                on_close=handle_submenu_close,
+                on_hover=handle_submenu_hover,
+                controls=[
+                    ft.SubmenuButton(
+                        content=ft.Text("Zoom"),
+                        controls=[
+                            ft.MenuItemButton(
+                                content=ft.Text("Magnify"),
+                                leading=ft.Icon(ft.Icons.ZOOM_IN),
+                                close_on_click=False,
+                                style=ft.ButtonStyle(
+                                    bgcolor={
+                                        ft.ControlState.HOVERED: ft.Colors.PURPLE_200
+                                    }
+                                ),
+                                on_click=handle_menu_item_click,
+                            ),
+                            ft.MenuItemButton(
+                                content=ft.Text("Minify"),
+                                leading=ft.Icon(ft.Icons.ZOOM_OUT),
+                                close_on_click=False,
+                                style=ft.ButtonStyle(
+                                    bgcolor={
+                                        ft.ControlState.HOVERED: ft.Colors.PURPLE_200
+                                    }
+                                ),
+                                on_click=handle_menu_item_click,
+                            ),
+                        ],
+                    )
+                ],
+            ),
+        ],
+    )
+
+
     msg_sucesso = ft.SnackBar(
         content=ft.Text(value='nome salvado com sucesso'),
         bgcolor=Colors.GREEN,
@@ -185,6 +366,24 @@ def main(page: ft.Page):
     )
     lv_Descricao = ft.ListView(
         height=500,
+    )
+
+    logo = ft.Image(
+        src="logobiblioteca-removebg-preview.png",
+    )
+    # perfil = ft.PopupMenuButton(
+    #                     icon=ft.Icons.PERSON,
+    #                     items=[
+    #                         ft.PopupMenuItem(text='detalhes',on_click=lambda _: page.go('/terceira')),
+    #                     ]
+    #                 )
+    perfil = ft.IconButton(
+        icon=ft.Icons.PERSON,
+        on_click=lambda _: page.go('/perfil'),
+    )
+    livro = ft.IconButton(
+        icon=ft.Icons.BOOK,
+        on_click=lambda _: page.go('/biblioteca'),
     )
     input_nome = ft.TextField(label="Digite o nome do livro")
     input_descricao = ft.TextField(label='insira a descricao do livro')

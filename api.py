@@ -45,23 +45,14 @@ def consultar_livros():
         for livro in lista_livros:
             result.append(livro.get_livro())
         db_session.close()
-
-
-        result_disponiveis = []
-        lista_livros_disponiveis = select(Livros)
-        lista_livros_disponiveis = db_session.execute(lista_livros_disponiveis.filter(Livros.status)).scalars()
-        for livros in lista_livros_disponiveis:
-            result_disponiveis.append(livros.get_livro())
         db_session.close()
 
 
 
-        return jsonify({'livrosnocatalogodabiblioteca': result,
-                       'livrosdisponiveisparaemprestimos': result_disponiveis})
-
-
+        return jsonify({'livrosnocatalogodabiblioteca': result})
     except IntegrityError as e:
         return jsonify({'error': str(e)})
+
 
 @app.route('/cadastrar_livro', methods=['POST'])
 def cadastrar_livro():
@@ -104,14 +95,15 @@ def cadastrar_livro():
                     'ISBN': livro_salvado.ISBN
                 })
             except IntegrityError as e:
-                return jsonify({'error': str(e)})
+                return jsonify({'error': str(e)}), 500
 
 @app.route('/cadastrar_usuario', methods=['POST'])
 def cadastrar_usuario():
     if request.method == 'POST':
-        nome = request.form.get('nome')
-        cpf = request.form.get('cpf')
-        endereco = request.form.get('endereco')
+        dados = request.get_json()
+        nome = dados['titulo']
+        cpf = dados['autor']
+        endereco = dados['resumo']
 
         cpf_ja_cadastrado = select(Usuarios)
         cpf_ja_cadastrado = db_session.execute(cpf_ja_cadastrado.filter_by(CPF=cpf)).first()
@@ -236,10 +228,10 @@ def editar_usuario(id):
                             "erro": "Este CPF já existe!"
                         })
                 # o strip remover espaços em branco no início e no fim de uma string
-                usuario_editado.nome = request.form['nome']
-                usuario_editado.CPF = request.form['CPF'].strip()
-                usuario_editado.endereco = request.form['endereco']
-
+                dados = request.get_json()
+                usuario_editado.nome = dados['nome']
+                usuario_editado.CPF = dados['CPF']
+                usuario_editado.endereco = dados['endereco']
                 usuario_editado.save()
 
                 return jsonify({
@@ -262,15 +254,16 @@ def atualizar_livro(id):
     livro = db_session.execute(livro.filter_by(id_livro=id)).scalar()
     if not livro:
         return jsonify({'error': 'Livro não encontrado'}), 404
+    dados = request.get_json()
 
-    titulo = request.form.get('titulo')
+    titulo = dados['titulo']
     livro_existente = select(Livros)
     titulo_existente = db_session.execute(livro_existente.filter_by(titulo=titulo)).scalar()
     if titulo_existente:
         return jsonify({'titulo de livro já cadastrado': titulo})
-    autor = request.form.get('autor')
-    resumo = request.form.get('resumo')
-    status = request.form.get('status')
+    autor = dados['autor']
+    resumo = dados['resumo']
+    isbn = dados['isbn']
 
     if titulo:
         livro.titulo = titulo
@@ -278,8 +271,8 @@ def atualizar_livro(id):
         livro.autor = autor
     if resumo:
         livro.resumo = resumo
-    if status:
-        livro.status = status
+    if isbn:
+        livro.ISBN = isbn
 
     livro.save()
     return jsonify({'mensagem': 'Livro atualizado com sucesso', 'dados': livro.get_livro()})
@@ -287,7 +280,7 @@ def atualizar_livro(id):
 @app.route('/emprestimos_por_usuario/<id_usuario>', methods=['GET'])
 def emprestimos_por_usuario(id_usuario):
     try:
-        emprestimos = db_session.execute(select(Emprestimos).filter_by(id_usuario=id_usuario)).all()
+        emprestimos = db_session.execute(select(Emprestimos).filter_by(id_usuario=id_usuario)).scalars()
         if not emprestimos:
             return jsonify({'mensagem': 'Nenhum empréstimo encontrado para este usuário'})
 
@@ -303,12 +296,18 @@ def emprestimos_por_usuario(id_usuario):
 def editar_emprestimo(ISBN):
     try:
         ISBN = int(ISBN)
-        livro_encontrado = db_session.execute(select(Emprestimos).filter_by(ISBN=ISBN)).scalar()
+        livro_encontrado = db_session.execute(select(Emprestimos).filter_by(ISBN_livro=ISBN)).scalar()
         if not livro_encontrado:
             return jsonify({'error': 'livro não encontrado'})
-
-        livro_encontrado.id_usuario = request.form.get('id_usuario')
+        dados = request.get_json()
+        id_usuario = dados['id_usuario']
+        id_usuario = int(id_usuario)
+        usuario_encontrado = db_session.execute(select(Usuarios).filter_by(id=id_usuario)).first()
+        if not usuario_encontrado:
+            return jsonify({"error":"usuario nao encontrado"})
+        livro_encontrado.id_usuario = id_usuario
         livro_encontrado.save()
+        return jsonify({"sucesso": "Sucesso"})
     except IntegrityError as e:
         return jsonify({'error': str(e)}), 500
 @app.route('/devolver_livro', methods=['PUT'])
