@@ -269,7 +269,7 @@ def main(page: ft.Page):
         expand=True,
         style=ft.MenuStyle(
             alignment=ft.alignment.top_right,
-            bgcolor="#ffe5dd",
+            bgcolor="#5a1f13",
             mouse_cursor={
                 ft.ControlState.HOVERED: ft.MouseCursor.WAIT,
                 ft.ControlState.DEFAULT: ft.MouseCursor.ZOOM_OUT,
@@ -283,67 +283,38 @@ def main(page: ft.Page):
                 on_close=handle_submenu_close,
                 on_hover=handle_submenu_hover,
                 controls=[
-                    ft.MenuItemButton(
-                        content=ft.Text("About"),
-                        leading=ft.Icon(ft.Icons.INFO),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
-                        ),
-                        on_click=handle_menu_item_click,
-                    ),
-                    ft.MenuItemButton(
-                        content=ft.Text("Save"),
-                        leading=ft.Icon(ft.Icons.SAVE),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
-                        ),
-                        on_click=handle_menu_item_click,
-                    ),
-                    ft.MenuItemButton(
-                        content=ft.Text("Quit"),
-                        leading=ft.Icon(ft.Icons.CLOSE),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.Colors.GREEN_100}
-                        ),
-                        on_click=handle_menu_item_click,
-                    ),
-                ],
-            ),
-            ft.SubmenuButton(
-                content=ft.Text("View"),
-                on_open=handle_submenu_open,
-                on_close=handle_submenu_close,
-                on_hover=handle_submenu_hover,
-                controls=[
-                    ft.SubmenuButton(
-                        content=ft.Text("Zoom"),
-                        controls=[
+                    ft.Row(
+                        [
                             ft.MenuItemButton(
-                                content=ft.Text("Magnify"),
-                                leading=ft.Icon(ft.Icons.ZOOM_IN),
-                                close_on_click=False,
+                                content=ft.Text("About"),
+                                leading=ft.Icon(ft.Icons.INFO),
                                 style=ft.ButtonStyle(
-                                    bgcolor={
-                                        ft.ControlState.HOVERED: ft.Colors.PURPLE_200
-                                    }
+                                    bgcolor={ft.ControlState.HOVERED: "#5a1f13"}
                                 ),
                                 on_click=handle_menu_item_click,
                             ),
                             ft.MenuItemButton(
-                                content=ft.Text("Minify"),
-                                leading=ft.Icon(ft.Icons.ZOOM_OUT),
-                                close_on_click=False,
+                                content=ft.Text("Save"),
+                                leading=ft.Icon(ft.Icons.SAVE),
                                 style=ft.ButtonStyle(
-                                    bgcolor={
-                                        ft.ControlState.HOVERED: ft.Colors.PURPLE_200
-                                    }
+                                    bgcolor={ft.ControlState.HOVERED: "#5a1f13"}
                                 ),
                                 on_click=handle_menu_item_click,
                             ),
-                        ],
-                    )
+                            ft.MenuItemButton(
+                                content=ft.Text("Quit"),
+                                leading=ft.Icon(ft.Icons.CLOSE),
+                                style=ft.ButtonStyle(
+                                    bgcolor={ft.ControlState.HOVERED: "#5a1f13"}
+                                ),
+                                on_click=handle_menu_item_click,
+                            ),
+                        ]
+                    ),
+
                 ],
             ),
+
         ],
     )
 
